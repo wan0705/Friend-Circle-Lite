@@ -71,25 +71,25 @@ jobs:
 
     - name: Commit changes
   run: |
-    # 先获取当前的 netlify.toml（如果存在）
-    git fetch origin page || true
-    if git show-ref --verify --quiet refs/heads/page; then
-      git show origin/page:netlify.toml > /tmp/netlify.toml 2>/dev/null || echo "没有现有的 netlify.toml"
-    fi
-    
-    # 正常生成内容
     mkdir pages
-    cp -r main ./static/* ./temp/cache.json all.json errors.json pages/ 2>/dev/null || true
+    cp -r main ./static/* ./temp/* all.json errors.json pages/ 2>/dev/null || true
     
-    # 恢复 netlify.toml
+    # 直接在这里创建 netlify.toml
     cd pages
-    if [ -f /tmp/netlify.toml ]; then
-      cp /tmp/netlify.toml ./netlify.toml
-    fi
+    cat > netlify.toml << 'EOF'
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
+EOF
     
     git init
     git add .
-    git commit -m "Update"
+    git config user.name "github-actions[bot]"
+    git config user.email "github-actions[bot]@users.noreply.github.com"
+    git commit -m "Update page branch with netlify.toml"
     git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:page
 
     - name: Delete Workflow Runs
