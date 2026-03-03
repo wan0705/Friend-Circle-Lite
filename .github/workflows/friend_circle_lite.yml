@@ -70,27 +70,14 @@ jobs:
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
     - name: Commit changes
-  run: |
-    mkdir pages
-    cp -r main ./static/* ./temp/* all.json errors.json pages/ 2>/dev/null || true
-    
-    # 直接在这里创建 netlify.toml
-    cd pages
-    cat > netlify.toml << 'EOF'
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type"
-EOF
-    
-    git init
-    git add .
-    git config user.name "github-actions[bot]"
-    git config user.email "github-actions[bot]@users.noreply.github.com"
-    git commit -m "Update page branch with netlify.toml"
-    git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:page
+      run: |
+        mkdir pages
+        cp -r main ./static/edgeone.json ./static/index.html ./static/readme.md ./static/favicon.ico ./static/bg-light.webp ./temp/cache.json ./static/bg-dark.webp all.json errors.json pages/
+        cd pages
+        git init
+        git add .
+        git commit -m "⏱️ $(date +"%Y年%m月%d日-%H时%M分") GitHub Actions定时更新"
+        git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:page
 
     - name: Delete Workflow Runs
       uses: Mattraks/delete-workflow-runs@v2
